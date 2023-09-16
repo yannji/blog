@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.yannji.blog.mapper.PostMapper">
+
+    <insert id="saveTagsToPost">
+        insert into tb_post_tag_rel (post_id, tag_id)
+        values
+        <foreach collection="tags" item="tagId" separator=",">
+            (
+            #{postId}, #{tagId}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="saveCategorysToPost">
+        insert into tb_post_category_rel (post_id, category_id)
+        values
+        <foreach collection="categorys" item="categoryId" separator=",">
+            (
+            #{postId}, #{categoryId}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="removeTagsFromPost">
+        delete from tb_post_tag_rel
+        where post_id = #{postId} and
+        tag_id in
+        <foreach collection="tags" item="tagId" separator="," open="(" close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+
+    <delete id="removeCategorysFromPost">
+        delete from tb_post_category_rel
+        where post_id = #{postId} and
+        category_id in
+        <foreach collection="categorys" item="categoryId" separator="," open="(" close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+
+    <select id="selectCountByTagId" resultType="java.lang.Long">
+        select count(tp.id)
+        from tb_post tp
+        left join tb_post_tag_rel tptr
+        on tp.id = tptr.post_id
+        where tptr.tag_id = #{tagId}
+        and tp.is_deleted = 0
+        <if test="isAdmin == false">
+            and tp.is_display = 1
+            and tp.is_publish = 1
+        </if>
+    </select>
+
+    <select id="pagePostByTagId" resultType="fun.yannji.blog.entity.Post">
+        select tp.*
+        from tb_post tp
+        left join tb_post_tag_rel tptr
+        on tp.id = tptr.post_id
+        where tptr.tag_id = #{tagId}
+        and tp.is_deleted = 0
+        <if test="isAdmin == false">
+            and tp.is_display = 1
+            and tp.is_publish = 1
+        </if>
+        limit #{current},#{size}
+    </select>
+
+    <select id="selectCountByCategoryId" resultType="java.lang.Long">
+        select count(tp.id)
+        from tb_post tp
+        left join tb_post_category_rel tpcr
+        on tp.id = tpcr.post_id
+        where tpcr.category_id = #{categoryId}
+        and tp.is_deleted = 0
+        <if test="isAdmin == false">
+            and tp.is_display = 1
+            and tp.is_publish = 1
+        </if>
+    </select>
+
+    <select id="pagePostByCategoryId" resultType="fun.yannji.blog.entity.Post">
+        select tp.*
+        from tb_post tp
+        left join tb_post_category_rel tpcr
+        on tp.id = tpcr.post_id
+        where tpcr.category_id = #{categoryId}
+        and tp.is_deleted = 0
+        <if test="isAdmin == false">
+            and tp.is_display = 1
+            and tp.is_publish = 1
+        </if>
+        limit #{current},#{size}
+    </select>
+
+
+</mapper>

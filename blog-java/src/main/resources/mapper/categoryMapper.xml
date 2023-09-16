@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.yannji.blog.mapper.CategoryMapper">
+
+    <select id="listCategory"
+            parameterType="boolean"
+            resultType="fun.yannji.blog.domain.dto.CategoryDTO">
+        select tc.id, tc.name, tc.sort, tc.is_display, tc.create_time, count(tpcr.category_id) post_count
+        from tb_category tc
+        left join tb_post_category_rel tpcr
+        on tc.id = tpcr.category_id
+        where tc.is_deleted = 0
+        <if test="isAdmin == false">
+            and tc.is_display = 1
+        </if>
+        group by tc.id, tc.name, tc.sort, tc.create_time
+        order by tc.sort desc, tc.create_time desc
+    </select>
+
+    <select id="listCategoryByPostIds" resultType="fun.yannji.blog.domain.dto.PostCategoryDTO">
+        select post_id, category_id, name category_name, tc.is_display
+        from tb_post_category_rel tpcr
+        right join tb_category tc
+        on tpcr.category_id = tc.id
+        where tpcr.post_id in
+        <foreach collection="postIds" item="postId" open="(" close=")" separator=",">
+            #{postId}
+        </foreach>
+        and tc.is_deleted = 0
+        <if test="isAdmin == false">
+            and tc.is_display = 1
+        </if>
+    </select>
+
+</mapper>

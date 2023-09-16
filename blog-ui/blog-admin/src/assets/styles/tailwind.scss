@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    font-size: 35px;
+  }
+  h2 {
+    font-size: 30px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg p-4 bg-white shadow-sm w-full overflow-hidden;
+  }
+  .btn {
+    @apply rounded px-4 py-1  shadow-md;
+  }
+  .primary-btn {
+    @apply rounded px-4 py-1 bg-blue-400 shadow-md text-white hover:bg-blue-500;
+  }
+  .success-btn {
+    @apply rounded px-4 py-1 bg-green-400 shadow-md text-white hover:bg-green-500;
+  }
+}

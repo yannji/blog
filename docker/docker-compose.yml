@@ -1,0 +1,57 @@
+version : '3.8'
+
+services:
+  blog-mysql:
+    container_name: blog-mysql
+    build:
+      context: ./mysql
+    volumes:
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./mysql/log:/var/log
+      - ./mysql/data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: 'nuxt-blog'
+      MYSQL_ROOT_PASSWORD: 'wdym-jb***'
+
+  blog-redis:
+    container_name: blog-redis
+    build:
+      context: ./redis
+    volumes:
+      - ./redis/data:/data
+    ports:
+      - "6379:6379"
+
+  blog-java:
+    container_name: blog-java
+    build:
+      context: ./blog
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./blog/upload:/home/yannji/blog/upload
+    depends_on: 
+      - blog-redis
+      - blog-mysql
+
+  blog-node:
+    container_name: blog-node
+    build:
+      context: ./node
+    ports:
+      - "3000:3000"
+    depends_on:
+      - blog-java
+
+  blog-nginx:
+    container_name: blog-nginx
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+      - "9999:8888"
+    depends_on:
+      - blog-node
+
